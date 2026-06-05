@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+JP:wght@300;400;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+JP:wght@300;400;600;700&family=Montserrat:wght@200;300;400;500;600&display=swap');
 
 /* --- Design System & Variables --- */
 :root {
@@ -1058,7 +1058,7 @@ footer {
   -webkit-backface-visibility: hidden;
 }
 
-/* --- Spring Petals Canvas (風にほどける春 exclusive special effect) --- */
+/* --- Spring Petals Canvas (鬚ｨ縺ｫ縺ｻ縺ｩ縺代ｋ譏･ exclusive special effect) --- */
 /* Canvas is a sibling of lightbox-image-stage inside lightbox-main.
    z-index is lower than the image stage (z-index:2), so petals
    appear only in the surrounding background area, never on the photo. */
@@ -1069,7 +1069,7 @@ footer {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 1; /* Below image-stage (z-index:2) — petals stay in background */
+  z-index: 1; /* Below image-stage (z-index:2) 窶・petals stay in background */
   opacity: 0;
   transition: opacity 2s ease;
 }
@@ -1763,6 +1763,8 @@ footer {
 }
 
 /* --- Responsive Layout adjustments --- */
+
+/* === Tablet (竕､1024px) === */
 @media (max-width: 1024px) {
   section {
     padding: 6rem 6% 4rem 6%;
@@ -1776,6 +1778,9 @@ footer {
   }
   .hero-info {
     align-items: center;
+  }
+  .hero-photographer-tag {
+    justify-content: center;
   }
   .museum-placard {
     width: 100%;
@@ -1791,81 +1796,359 @@ footer {
   }
 }
 
+/* === Mobile (竕､768px) 窶・Full overhaul === */
 @media (max-width: 768px) {
+
+  /* --- Header & Hamburger Nav --- */
   header {
-    padding: 1rem 1.5rem;
+    padding: 1rem 1.2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
   }
   header.scrolled {
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 1.2rem;
   }
-  nav ul {
-    gap: 1.2rem;
+
+  /* Hide desktop nav by default on mobile */
+  #main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 11, 13, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, visibility 0.4s ease;
   }
-  nav a {
-    font-size: 0.75rem;
+  #main-nav.open {
+    opacity: 1;
+    visibility: visible;
   }
-  .hero-title-ja {
-    font-size: 2.2rem;
+  #main-nav ul {
+    flex-direction: column;
+    gap: 2.2rem;
+    text-align: center;
   }
-  .title-card-title {
-    font-size: 1.8rem;
-    padding: 0 1.5rem;
+  #main-nav a {
+    font-size: 1.3rem;
+    letter-spacing: 0.2em;
+    padding: 0.5rem 0;
+  }
+
+  /* Hamburger button */
+  .nav-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 28px;
+    height: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1001;
+    position: relative;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 100%;
+    height: 1.5px;
+    background: var(--accent-gold);
+    border-radius: 2px;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    transform-origin: center;
+  }
+  /* X animation */
+  .nav-hamburger.open span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+  .nav-hamburger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .nav-hamburger.open span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
+
+  /* --- Global typography / layout --- */
+  section {
+    padding: 5rem 5% 3.5rem 5%;
+  }
+  .section-title {
+    font-size: 1.6rem;
+  }
+
+  /* --- Hero section --- */
+  #hero {
+    flex-direction: column;
+    padding: 5.5rem 5% 3rem 5%;
+    gap: 2.5rem;
+    text-align: center;
+    min-height: auto;
   }
   .hero-visual {
     width: 100%;
+    justify-content: center;
   }
   .metal-print-wrap {
-    max-width: 320px;
+    max-width: 280px;
   }
-  .lightbox-container {
-    flex-direction: column;
-    position: relative;
+  .hero-title-ja {
+    font-size: 2rem;
   }
-  .lightbox-main {
+  .hero-title-en {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+  .hero-photographer-tag {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
     width: 100%;
-    height: 100%;
-    padding: 2rem 1rem;
-    box-sizing: border-box;
+    border-radius: 6px;
   }
-  .lightbox-image-stage {
-    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  .photographer-name {
+    font-size: 0.95rem;
+  }
+  .photographer-dept {
+    font-size: 0.7rem;
+  }
+  .hero-desc {
+    font-size: 0.88rem;
+  }
+
+  /* --- Concept section --- */
+  .concept-lead {
+    font-size: 1.05rem;
+  }
+  .concept-body {
+    font-size: 0.88rem;
+  }
+  .concept-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .stat-card {
+    padding: 1.5rem 1rem;
+  }
+  .stat-num {
+    font-size: 2rem;
+  }
+
+  /* --- Gallery grid --- */
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  /* Gallery overlay: always visible on mobile (no hover) */
+  .gallery-overlay {
+    opacity: 1;
     transform: translateY(0);
+    background: linear-gradient(to top, rgba(13,14,16,0.92) 0%, rgba(13,14,16,0.4) 50%, transparent 100%);
   }
-  .lightbox-sidebar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 42vh;
-    border-left: none;
-    border-top: 1px solid var(--border-color);
-    transform: translateY(100%);
-    z-index: 10;
-    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-    padding: 2rem 1.5rem;
+  .gallery-photo-title {
+    font-size: 0.85rem;
   }
-  .lightbox.show-details .lightbox-sidebar {
-    transform: translateY(0);
+  .gallery-photo-exif {
+    font-size: 0.65rem;
   }
-  .lightbox.show-details .lightbox-image-stage {
-    transform: translateY(-8vh);
+
+  /* --- Spots section --- */
+  .spots-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
-  .divine-backlight {
-    top: -45px;
-    left: -45px;
-    right: -45px;
-    bottom: -45px;
-  }
+
+  /* --- Info section --- */
   .info-table-card {
     padding: 1.5rem;
   }
   .info-row {
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: 110px 1fr;
+    font-size: 0.85rem;
+    padding: 0.9rem 0;
   }
-  .spots-grid {
-    grid-template-columns: 1fr;
+  .info-label {
+    font-size: 0.85rem;
+  }
+
+  /* --- Footer --- */
+  footer {
+    padding: 3rem 5% 2.5rem 5%;
+  }
+  .footer-logo {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .footer-photographer {
+    max-width: 100%;
+  }
+  .footer-photographer-inner {
+    padding: 1.4rem 1.5rem;
+  }
+  .footer-photographer-name {
+    font-size: 1.2rem;
+  }
+
+  /* --- Lightbox: flex-column split. Photo zone (top 54%) is fixed.
+   * Detail zone (bottom 46%) starts below itself and slides up.
+   * overflow:hidden on container clips the animation. No overlap. */
+
+  .lightbox-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    /* No overflow:hidden here — it would block sidebar scroll. */
+    /* Off-screen sidebar is naturally clipped by the fixed viewport. */
+    position: relative;
+  }
+
+  /* PHOTO ZONE: top 54% */
+  .lightbox-main {
+    flex: 0 0 54%;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 3.6rem 1rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: visible;
+  }
+  .lightbox-image-wrap img { max-height: 44vh; }
+
+  /* Image stage: LOCKED -- never moves on mobile */
+  .lightbox-image-stage {
+    transform: translate3d(0, 0, 0) !important;
+    transition: none !important;
+  }
+  .lightbox.show-details .lightbox-image-stage {
+    transform: translate3d(0, 0, 0) !important;
+  }
+
+  /* DETAIL ZONE: bottom 46% flex slot */
+  .lightbox-sidebar {
+    position: relative;
+    top: auto; right: auto; left: auto; bottom: auto;
+    flex: 0 0 46%;
+    width: 100%;
+    max-height: none;
+    overflow-y: auto;
+    border-left: none;
+    border-top: 1px solid var(--border-gold);
+    border-radius: 18px 18px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0.5rem 1.4rem 2rem;
+    z-index: 20;
+    background: rgba(10, 11, 13, 0.98);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+  .lightbox.show-details .lightbox-sidebar { transform: translateY(0); }
+
+  .lightbox-sidebar::before {
+    content: '';
+    display: block;
+    width: 36px; height: 3px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 2px;
+    margin: 0 auto 0.9rem auto;
+  }
+
+  .lightbox-story-tag { font-size: 0.62rem; margin-bottom: 0.3rem; }
+  .lightbox-title     { font-size: 1.1rem;  margin-bottom: 0.6rem; }
+  .lightbox-desc      { font-size: 0.8rem;  margin-bottom: 0.8rem; line-height: 1.7; }
+  .lightbox-sidebar .museum-placard { padding: 0.8rem 0.7rem; margin-bottom: 0; }
+  .placard-row { font-size: 0.75rem; gap: 0.4rem; }
+
+  .title-card-title { font-size: 1.6rem; padding: 0 1.2rem; letter-spacing: 0.12em; }
+  .lightbox-close { top: 1rem; right: 1rem; width: 40px; height: 40px; }
+  .evf-side-icons-left, .evf-side-icons-right { display: none; }
+  .evf-top-bar    { font-size: 9px;  top: 8px;    left: 10px; right: 10px; }
+  .evf-bottom-bar { font-size: 11px; bottom: 8px; left: 10px; right: 10px; }
+  .divine-backlight { top: -45px; left: -45px; right: -45px; bottom: -45px; }
+
+  /* Cursor: hide completely on mobile (touch devices) */
+  .custom-cursor, .custom-cursor-dot { display: none !important; }
+  body, a, button, .gallery-card, .metal-print-wrap, .lightbox-close, .contrast-metal-wrap {
+    cursor: auto !important;
   }
 }
+
+/* === Small phones (竕､480px) === */
+@media (max-width: 480px) {
+  .gallery-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+  }
+  .hero-title-ja {
+    font-size: 1.75rem;
+  }
+  .intro-title {
+    font-size: 2.2rem;
+    letter-spacing: 0.15em;
+  }
+  .concept-stats {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+  .stat-num {
+    font-size: 1.7rem;
+  }
+  .info-row {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+  .info-value {
+    font-size: 0.85rem;
+  }
+  .placard-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  .placard-value {
+    text-align: left;
+    white-space: normal;
+  }
+  /* Lightbox on small phones */
+  .lightbox-image-wrap img { max-height: 36vh; }
+  .lightbox.show-details .lightbox-image-stage { transform: translateY(-22vh); }
+  .lightbox-sidebar { height: 44vh; }
+}
+
+/* Desktop: hide hamburger */
+@media (min-width: 769px) {
+  .nav-hamburger {
+    display: none;
+  }
+  #main-nav {
+    position: static;
+    opacity: 1 !important;
+    visibility: visible !important;
+    background: none;
+    height: auto;
+    width: auto;
+  }
+  #main-nav ul {
+    flex-direction: row;
+    gap: 2.5rem;
+  }
+}
+
 
 /* --- Splash Screen / Opening Overlay --- */
 #intro-overlay {
@@ -2489,3 +2772,6 @@ a, button, .gallery-card, .metal-print-wrap, .lightbox-close, .contrast-metal-wr
     justify-content: space-between;
   }
 }
+
+
+

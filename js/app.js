@@ -225,6 +225,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // --- Mobile Hamburger Menu ---
+  const hamburger = document.getElementById('nav-hamburger');
+  const mainNav = document.getElementById('main-nav');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  if (hamburger && mainNav) {
+    hamburger.addEventListener('click', () => {
+      const isOpen = mainNav.classList.toggle('open');
+      hamburger.classList.toggle('open', isOpen);
+      hamburger.setAttribute('aria-expanded', isOpen);
+      document.body.style.overflow = isOpen ? 'hidden' : '';
+    });
+
+    // Close menu when a nav link is tapped
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        mainNav.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      });
+    });
+  }
+
   // --- 3D Tilt & Specular Reflection Effect for Metal Prints ---
   const initTiltEffect = (elementWrapSelector, sheenSelector) => {
     const wraps = document.querySelectorAll(elementWrapSelector);
