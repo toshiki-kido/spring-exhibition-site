@@ -62,6 +62,13 @@
       <h1 class="hero-title-ja">風にほどける春</h1>
       <div class="hero-title-en">Spring Unraveling in the Wind</div>
       
+      <!-- Photographer byline -->
+      <div class="hero-photographer-tag">
+        <span class="photographer-label">Photographer</span>
+        <span class="photographer-name">木戸 俊希</span>
+        <span class="photographer-dept">電気電子工学科 3年</span>
+      </div>
+      
       <!-- Museum style placard for EXIF data -->
       <div class="museum-placard">
         <div class="placard-row">
@@ -544,6 +551,17 @@
     <p style="color:var(--text-muted); font-size:0.85rem; font-family:var(--font-serif);">
       北海道科学大学 写真部 春展 出展作品ポートフォリオ
     </p>
+
+    <!-- Photographer profile card -->
+    <div class="footer-photographer">
+      <div class="footer-photographer-inner">
+        <div class="footer-photographer-label">PHOTOGRAPHER</div>
+        <div class="footer-photographer-name">木戸 俊希</div>
+        <div class="footer-photographer-meta">北海道科学大学 理工学部 電気電子工学科 3年</div>
+        <a href="mailto:3243005@stu.hus.ac.jp" class="footer-photographer-mail">3243005@stu.hus.ac.jp</a>
+      </div>
+    </div>
+
     <div class="footer-credit">
       &copy; 2026 Hokkaido University of Science Photography Club. All Rights Reserved.
     </div>
@@ -551,6 +569,11 @@
 
   <!-- Lightbox Modal -->
   <div id="lightbox" class="lightbox">
+    <div class="lightbox-title-card">
+      <span class="title-card-subtitle">Exhibition Work</span>
+      <h2 class="title-card-title">作品タイトル</h2>
+      <div class="title-card-line"></div>
+    </div>
     <div class="lightbox-container">
       <div class="lightbox-main">
         <button class="lightbox-close" aria-label="閉じる">
@@ -559,65 +582,73 @@
             <line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
-        <div class="lightbox-image-wrap">
-          <img src="" alt="拡大表示">
-          
-          <!-- SONY a7IV EVF Viewfinder HUD Overlay -->
-          <div class="viewfinder-hud">
-            <!-- EVF Grid Lines -->
-            <div class="evf-grid-horizontal"></div>
-            <div class="evf-grid-vertical"></div>
-            
-            <!-- SONY Focus Points (Autofocus Green Squares) -->
-            <div class="evf-focus-brackets">
-              <div class="focus-box box1" style="top: 45%; left: 45%;"></div>
-              <div class="focus-box box2" style="top: 42%; left: 52%;"></div>
-              <div class="focus-box box3" style="top: 52%; left: 48%;"></div>
-            </div>
-            
-            <!-- EVF Top Info Bar -->
-            <div class="evf-top-bar">
-              <div class="evf-top-left">
-                <span>📁 100</span>
-                <span>RAW</span>
-                <span>L:33M</span>
-              </div>
-              <div class="evf-top-center">
-                <span>[1] 9999</span>
-              </div>
-              <div class="evf-top-right">
-                <span>100% 🔋</span>
-              </div>
-            </div>
-            
-            <!-- EVF Side Settings -->
-            <div class="evf-side-icons-left">
-              <span>AWB</span>
-              <span>ST</span>
-              <span>HDR</span>
-            </div>
-            <div class="evf-side-icons-right">
-              <span>AF-S</span>
-              <span>[•]</span>
-              <span>3:2</span>
-            </div>
-            
-            <!-- EVF Bottom Exposure Bar -->
-            <div class="evf-bottom-bar">
-              <div class="evf-bottom-focus">
-                <span class="evf-focus-indicator">●</span>
-              </div>
-              <div class="evf-bottom-exposure">
-                <span id="evf-shutter-val">1/1000</span>
-                <span id="evf-aperture-val">F5.6</span>
-                <span class="evf-exposure-scale">MM +0.0</span>
-                <span id="evf-iso-val">ISO 250</span>
-              </div>
-            </div>
+        <!-- Spring Petals Canvas (hero photo only) — outside image stage so petals don't cover the photo -->
+        <canvas id="spring-petals" class="spring-petals-canvas" aria-hidden="true"></canvas>
+        <div class="lightbox-image-stage">
+          <div class="divine-backlight">
+            <div class="divine-shimmer shimmer-depth1"></div>
+            <div class="divine-shimmer shimmer-depth2"></div>
           </div>
-          
-          <!-- Shutter Flash Overlay -->
-          <div class="shutter-flash"></div>
+          <div class="lightbox-image-wrap">
+            <img src="" alt="拡大表示">
+            
+            <!-- SONY a7IV EVF Viewfinder HUD Overlay -->
+            <div class="viewfinder-hud">
+              <!-- EVF Grid Lines -->
+              <div class="evf-grid-horizontal"></div>
+              <div class="evf-grid-vertical"></div>
+              
+              <!-- SONY Focus Points (Autofocus Green Squares) -->
+              <div class="evf-focus-brackets">
+                <div class="focus-box box1" style="top: 45%; left: 45%;"></div>
+                <div class="focus-box box2" style="top: 42%; left: 52%;"></div>
+                <div class="focus-box box3" style="top: 52%; left: 48%;"></div>
+              </div>
+              
+              <!-- EVF Top Info Bar -->
+              <div class="evf-top-bar">
+                <div class="evf-top-left">
+                  <span>📁 100</span>
+                  <span>RAW</span>
+                  <span>L:33M</span>
+                </div>
+                <div class="evf-top-center">
+                  <span>[1] 9999</span>
+                </div>
+                <div class="evf-top-right">
+                  <span>100% 🔋</span>
+                </div>
+              </div>
+              
+              <!-- EVF Side Settings -->
+              <div class="evf-side-icons-left">
+                <span>AWB</span>
+                <span>ST</span>
+                <span>HDR</span>
+              </div>
+              <div class="evf-side-icons-right">
+                <span>AF-S</span>
+                <span>[•]</span>
+                <span>3:2</span>
+              </div>
+              
+              <!-- EVF Bottom Exposure Bar -->
+              <div class="evf-bottom-bar">
+                <div class="evf-bottom-focus">
+                  <span class="evf-focus-indicator">●</span>
+                </div>
+                <div class="evf-bottom-exposure">
+                  <span id="evf-shutter-val">1/1000</span>
+                  <span id="evf-aperture-val">F5.6</span>
+                  <span class="evf-exposure-scale">MM +0.0</span>
+                  <span id="evf-iso-val">ISO 250</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Shutter Flash Overlay -->
+            <div class="shutter-flash"></div>
+          </div>
         </div>
       </div>
       

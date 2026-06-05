@@ -34,12 +34,13 @@ html {
 body {
   font-family: var(--font-sans);
   color: var(--text-main);
-  background: radial-gradient(circle at 50% 30%, #252629 0%, #121314 100%);
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 30%), #242528 0%, #121314 100%);
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.1s ease-out;
 }
 
 /* --- Charcoal Matte Concrete Texture Overlay --- */
@@ -331,7 +332,45 @@ section {
   letter-spacing: 0.15em;
   color: var(--text-muted);
   text-transform: uppercase;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Photographer byline in hero */
+.hero-photographer-tag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 2rem;
+  padding: 0.7rem 1.2rem;
+  border-left: 2px solid var(--accent-gold);
+  background: rgba(197, 168, 128, 0.06);
+  border-radius: 0 6px 6px 0;
+  width: fit-content;
+}
+
+.photographer-label {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.photographer-name {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: 0.1em;
+}
+
+.photographer-dept {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
 }
 
 /* Museum Placard Style Details */
@@ -806,6 +845,78 @@ footer {
   margin-top: 1.5rem;
 }
 
+/* Footer photographer profile card */
+.footer-photographer {
+  margin: 2.5rem auto 0;
+  max-width: 400px;
+}
+
+.footer-photographer-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 1.8rem 2.5rem;
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  background: rgba(197, 168, 128, 0.04);
+  position: relative;
+}
+
+.footer-photographer-inner::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+}
+
+.footer-photographer-label {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+  margin-bottom: 4px;
+}
+
+.footer-photographer-name {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-main);
+  letter-spacing: 0.15em;
+}
+
+.footer-photographer-meta {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.footer-photographer-mail {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--accent-gold);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  margin-top: 6px;
+  transition: color 0.3s ease;
+}
+
+.footer-photographer-mail:hover {
+  color: var(--accent-gold-hover);
+  text-decoration: underline;
+}
+
 /* --- Interactive Lightbox Modal --- */
 .lightbox {
   position: fixed;
@@ -826,6 +937,77 @@ footer {
   visibility: visible;
 }
 
+.lightbox-title-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2050; /* Above everything inside the lightbox container during the intro */
+  background-color: rgba(10, 11, 13, 0.62); /* Semi-transparent cinematic dark veil */
+  backdrop-filter: blur(10px); /* Blur the content behind it */
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+}
+
+.lightbox-title-card.active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.title-card-subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+}
+
+.title-card-title {
+  font-family: var(--font-serif);
+  font-size: 2.8rem;
+  font-weight: 400;
+  letter-spacing: 0.25em;
+  color: var(--text-main);
+  line-height: 1.4;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  transform: translateY(15px);
+  opacity: 0;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, opacity 1s ease 0.15s;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+.title-card-line {
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;
+}
+
+/* Entrance animation triggers when title card is active */
+.lightbox-title-card.active .title-card-subtitle,
+.lightbox-title-card.active .title-card-title {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.lightbox-title-card.active .title-card-line {
+  width: 200px;
+}
+
 .lightbox-container {
   width: 100%;
   height: 100%;
@@ -835,7 +1017,8 @@ footer {
 }
 
 .lightbox-main {
-  flex: 1.4;
+  flex: 1;
+  width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -844,15 +1027,257 @@ footer {
   position: relative;
 }
 
+.lightbox-image-stage {
+  max-width: 100%;
+  max-height: 100%;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(0, 0, 0);
+  z-index: 2;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
 .lightbox-image-wrap {
   max-width: 100%;
   max-height: 100%;
   position: relative;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+  box-shadow: 
+    0 30px 60px rgba(0,0,0,0.8),
+    0 0 40px rgba(197, 168, 128, 0);
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background-color: #000;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* --- Spring Petals Canvas (風にほどける春 exclusive special effect) --- */
+/* Canvas is a sibling of lightbox-image-stage inside lightbox-main.
+   z-index is lower than the image stage (z-index:2), so petals
+   appear only in the surrounding background area, never on the photo. */
+.spring-petals-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1; /* Below image-stage (z-index:2) — petals stay in background */
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+/* Only visible when the hero photo is active and details are shown */
+.lightbox.show-details.hero-photo .spring-petals-canvas {
+  opacity: 1;
+}
+
+/* --- Divine Backlight Aura, Rays & Particle Shimmer --- */
+.divine-backlight {
+  position: absolute;
+  top: -450px;
+  left: -450px;
+  right: -450px;
+  bottom: -450px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.92) translate3d(0, 0, 0);
+  transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1), transform 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+  border-radius: 50%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  
+  /* Volumetric Divine Golden Core Glow - Naturally blurred via radial gradient color stops */
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 240, 210, 0.45) 0%,
+    rgba(230, 195, 145, 0.22) 20%,
+    rgba(197, 168, 128, 0.08) 45%,
+    rgba(197, 168, 128, 0.02) 65%,
+    transparent 80%
+  );
+}
+
+/* Enable active base glow during viewfinder phase */
+.lightbox.active .divine-backlight {
+  opacity: 0.45;
+  transform: scale(1.0);
+}
+
+/* Blossom into full divine glory when details are showing */
+.lightbox.show-details .divine-backlight {
+  opacity: 1;
+  transform: scale(1.06);
+  animation: divineBreathe 8s ease-in-out infinite alternate 1.5s;
+}
+
+/* Breathing animation for the golden aura (GPU accelerated, no layout/filter repaints) */
+@keyframes divineBreathe {
+  0% {
+    transform: scale(1.0) translate3d(0, 0, 0);
+    opacity: 0.82;
+  }
+  100% {
+    transform: scale(1.10) translate3d(0, 0, 0);
+    opacity: 1.0;
+  }
+}
+
+/* Slow-moving sunbeams rotating clockwise - Naturally blurred via wide transitions */
+.divine-backlight::before {
+  content: '';
+  position: absolute;
+  inset: -15%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg at 50% 50%,
+    transparent 0deg,
+    transparent 10deg,
+    rgba(255, 223, 160, 0.05) 25deg,
+    transparent 40deg,
+    transparent 50deg
+  );
+  animation: divineRotateCW 90s linear infinite;
+  mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 75%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 75%);
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+/* Slow-moving sunbeams rotating counter-clockwise (interference effect) - Naturally blurred via wide transitions */
+.divine-backlight::after {
+  content: '';
+  position: absolute;
+  inset: -15%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 45deg at 50% 50%,
+    transparent 0deg,
+    transparent 12deg,
+    rgba(255, 230, 180, 0.04) 28deg,
+    transparent 44deg,
+    transparent 60deg
+  );
+  animation: divineRotateCCW 130s linear infinite;
+  mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 75%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 25%, rgba(0,0,0,0) 75%);
+  opacity: 0;
+  transition: opacity 2s ease;
+}
+
+/* Only show rays in details mode to avoid clashing with SONY EVF overlay */
+.lightbox.show-details .divine-backlight::before,
+.lightbox.show-details .divine-backlight::after {
+  opacity: 1;
+}
+
+@keyframes divineRotateCW {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes divineRotateCCW {
+  0% {
+    transform: rotate(360deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+/* Base floating stardust shimmer styles */
+.divine-shimmer {
+  position: absolute;
+  inset: -25%;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  filter: blur(0.5px);
+  opacity: 0;
+  transition: opacity 2.5s ease;
+}
+
+/* Depth 1: Slower, larger particles, higher opacity */
+.shimmer-depth1 {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='40' r='2.5' fill='%23ffeaa7' opacity='0.45'/%3E%3Ccircle cx='90' cy='130' r='3' fill='%23c5a880' opacity='0.35'/%3E%3Ccircle cx='140' cy='70' r='2' fill='%23ffffff' opacity='0.55'/%3E%3Ccircle cx='50' cy='160' r='2.8' fill='%23ffeaa7' opacity='0.3'/%3E%3Ccircle cx='110' cy='30' r='2.2' fill='%23c5a880' opacity='0.4'/%3E%3Ccircle cx='170' cy='140' r='2.5' fill='%23ffeaa7' opacity='0.45'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* Depth 2: Faster, smaller particles, lower opacity */
+.shimmer-depth2 {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='15' cy='25' r='1.2' fill='%23ffeaa7' opacity='0.3'/%3E%3Ccircle cx='75' cy='115' r='1.5' fill='%23c5a880' opacity='0.25'/%3E%3Ccircle cx='155' cy='55' r='1.0' fill='%23ffffff' opacity='0.4'/%3E%3Ccircle cx='35' cy='175' r='1.8' fill='%23ffeaa7' opacity='0.2'/%3E%3Ccircle cx='125' cy='15' r='1.5' fill='%23c5a880' opacity='0.3'/%3E%3Ccircle cx='185' cy='155' r='1.2' fill='%23ffeaa7' opacity='0.35'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+.lightbox.show-details .shimmer-depth1 {
+  opacity: 0.75;
+  animation: shimmerDriftDepth1 36s linear infinite;
+}
+
+.lightbox.show-details .shimmer-depth2 {
+  opacity: 0.55;
+  animation: shimmerDriftDepth2 24s linear infinite;
+}
+
+@keyframes shimmerDriftDepth1 {
+  0% {
+    background-position: 0 0;
+    transform: scale(1.1) rotate(0deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(3deg);
+  }
+  100% {
+    background-position: 200px -400px;
+    transform: scale(1.1) rotate(6deg);
+  }
+}
+
+@keyframes shimmerDriftDepth2 {
+  0% {
+    background-position: 0 0;
+    transform: scale(0.9) rotate(0deg);
+  }
+  50% {
+    transform: scale(0.98) rotate(-4deg);
+  }
+  100% {
+    background-position: -140px -280px;
+    transform: scale(0.9) rotate(-8deg);
+  }
+}
+
+/* Ambient glow breathing animation after slide */
+.lightbox.show-details .lightbox-image-wrap {
+  box-shadow: 
+    0 30px 60px rgba(0,0,0,0.8),
+    0 0 45px rgba(197, 168, 128, 0.22);
+  animation: glowBreathe 4s infinite alternate ease-in-out 1s;
+}
+
+@keyframes glowBreathe {
+  0% {
+    box-shadow: 
+      0 30px 60px rgba(0,0,0,0.8),
+      0 0 35px rgba(197, 168, 128, 0.18);
+  }
+  100% {
+    box-shadow: 
+      0 30px 60px rgba(0,0,0,0.8),
+      0 0 60px rgba(197, 168, 128, 0.28);
+  }
 }
 
 .lightbox-image-wrap img {
@@ -861,18 +1286,24 @@ footer {
   object-fit: contain;
   display: block;
   opacity: 0;
-  filter: blur(15px) brightness(0.6);
-  transform: scale(1.04);
+  filter: blur(20px) brightness(0.2);
+  transform: scale(1.05);
   transition: 
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
-    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
-    filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), 
+    opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), 
+    filter 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .lightbox.active .lightbox-image-wrap img {
   opacity: 1;
   filter: blur(0px) brightness(1);
   transform: scale(1);
+}
+
+/* Keep the photo blurred and dark behind the active title card overlay */
+.lightbox-title-card.active ~ .lightbox-container .lightbox-image-wrap img {
+  filter: blur(25px) brightness(0.18) grayscale(0.2);
+  transform: scale(1.06);
 }
 
 /* SONY a7IV EVF Viewfinder HUD styling */
@@ -892,7 +1323,7 @@ footer {
   box-sizing: border-box;
 }
 
-.lightbox.active .viewfinder-hud {
+.lightbox.show-evf .viewfinder-hud {
   animation: evfReveal 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
 }
 
@@ -960,42 +1391,139 @@ footer {
 }
 
 /* SONY green focus lock animation */
-.lightbox.active .evf-focus-indicator {
+.lightbox.show-evf .evf-focus-indicator {
   animation: evfFocusLockIndicator 1.8s ease-out forwards;
 }
 
-/* Focus brackets blinking */
+/* Focus brackets and dynamic AF tracking points */
 .evf-focus-brackets {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  pointer-events: none;
 }
 
-.focus-box {
+.focus-frame {
   position: absolute;
-  width: 16px;
-  height: 16px;
-  border: 1.5px solid #5cf296;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 1px;
   background: transparent;
   opacity: 0;
-  box-shadow: 0 0 4px rgba(92, 242, 150, 0.4);
+  transform: translate(-50%, -50%) scale(1.4);
+  transition: 
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+    border-color 0.4s ease, 
+    opacity 0.4s ease,
+    box-shadow 0.4s ease;
+  pointer-events: none;
+  box-sizing: border-box;
 }
 
-.lightbox.active .focus-box {
-  animation: evfFocusBoxBlink 1.4s ease-out forwards;
+.focus-frame.active {
+  opacity: 0.85;
+  transform: translate(-50%, -50%) scale(1);
 }
 
-.focus-box.box1 {
-  animation-delay: 0.1s;
+.focus-frame.lock {
+  border-color: #5cf296;
+  box-shadow: 0 0 8px rgba(92, 242, 150, 0.5), inset 0 0 3px rgba(92, 242, 150, 0.2);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(0.95);
+  animation: focusLockBlink 0.3s ease-out 2 alternate;
 }
-.focus-box.box2 {
-  animation-delay: 0.18s;
+
+@keyframes focusLockBlink {
+  0% {
+    opacity: 1;
+    border-color: #5cf296;
+  }
+  100% {
+    opacity: 0.4;
+    border-color: rgba(92, 242, 150, 0.4);
+  }
 }
-.focus-box.box3 {
-  animation-delay: 0.25s;
+
+/* EVF Dial Text Transitions */
+#evf-shutter-val, #evf-aperture-val, #evf-iso-val {
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-block;
+}
+
+#evf-shutter-val.loaded, #evf-aperture-val.loaded, #evf-iso-val.loaded {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Premium Gold Particle Burst on Focus Lock */
+.af-sparkle {
+  position: absolute;
+  width: var(--size, 6px);
+  height: var(--size, 6px);
+  background: radial-gradient(circle, #ffffff 10%, #ffeaa7 40%, #c5a880 70%, transparent 100%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%) translate(0, 0) scale(0.5);
+  filter: blur(0.5px);
+  box-shadow: 0 0 8px rgba(255, 230, 180, 0.9);
+}
+
+.af-sparkle.burst {
+  animation: particleBurst 1.2s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes particleBurst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.3);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(var(--tx, 40px), var(--ty, -30px)) scale(1.3);
+  }
+}
+
+/* Specular gold reflection sweep across the crystal metal print on slide */
+.lightbox-image-wrap::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -120%;
+  width: 50%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 30%,
+    rgba(255, 223, 160, 0.16) 50%,
+    rgba(255, 255, 255, 0.04) 70%,
+    transparent 100%
+  );
+  transform: rotate(30deg);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.lightbox.show-details .lightbox-image-wrap::after {
+  animation: reflectionSweep 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+
+@keyframes reflectionSweep {
+  0% {
+    left: -120%;
+  }
+  100% {
+    left: 220%;
+  }
 }
 
 /* EVF Grid Lines (Rule of thirds grid overlay in SONY cameras) */
@@ -1032,7 +1560,7 @@ footer {
   opacity: 0;
 }
 
-.lightbox.active .shutter-flash {
+.lightbox.show-evf .shutter-flash {
   animation: shutterRelease 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -1107,7 +1635,10 @@ footer {
 }
 
 .lightbox-sidebar {
-  flex: 0.6;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30vw;
   height: 100%;
   background: #0f1012;
   border-left: 1px solid var(--border-color);
@@ -1116,11 +1647,16 @@ footer {
   flex-direction: column;
   justify-content: center;
   transform: translateX(100%);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
 }
 
-.lightbox.active .lightbox-sidebar {
+.lightbox.show-details .lightbox-sidebar {
   transform: translateX(0);
+}
+
+.lightbox.show-details .lightbox-image-stage {
+  transform: translateX(-15vw);
 }
 
 .lightbox-story-tag {
@@ -1170,11 +1706,11 @@ footer {
   transition-delay: 0.65s;
 }
 
-/* Trigger transitions when active */
-.lightbox.active .lightbox-story-tag,
-.lightbox.active .lightbox-title,
-.lightbox.active .lightbox-desc,
-.lightbox.active .lightbox-sidebar .museum-placard {
+/* Trigger transitions when active and details are shown */
+.lightbox.show-details .lightbox-story-tag,
+.lightbox.show-details .lightbox-title,
+.lightbox.show-details .lightbox-desc,
+.lightbox.show-details .lightbox-sidebar .museum-placard {
   opacity: 1;
   transform: translateY(0);
 }
@@ -1271,6 +1807,10 @@ footer {
   .hero-title-ja {
     font-size: 2.2rem;
   }
+  .title-card-title {
+    font-size: 1.8rem;
+    padding: 0 1.5rem;
+  }
   .hero-visual {
     width: 100%;
   }
@@ -1279,20 +1819,42 @@ footer {
   }
   .lightbox-container {
     flex-direction: column;
+    position: relative;
   }
   .lightbox-main {
-    flex: 1.2;
+    width: 100%;
+    height: 100%;
     padding: 2rem 1rem;
+    box-sizing: border-box;
+  }
+  .lightbox-image-stage {
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateY(0);
   }
   .lightbox-sidebar {
-    flex: 0.8;
-    padding: 2rem 1.5rem;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 42vh;
     border-left: none;
     border-top: 1px solid var(--border-color);
     transform: translateY(100%);
+    z-index: 10;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 2rem 1.5rem;
   }
-  .lightbox.active .lightbox-sidebar {
+  .lightbox.show-details .lightbox-sidebar {
     transform: translateY(0);
+  }
+  .lightbox.show-details .lightbox-image-stage {
+    transform: translateY(-8vh);
+  }
+  .divine-backlight {
+    top: -45px;
+    left: -45px;
+    right: -45px;
+    bottom: -45px;
   }
   .info-table-card {
     padding: 1.5rem;
@@ -1825,13 +2387,26 @@ a, button, .gallery-card, .metal-print-wrap, .lightbox-close, .contrast-metal-wr
 /* Car Indicator inside SVG */
 .journey-car-indicator circle {
   fill: var(--bg-color-dark);
-  stroke: var(--accent-gold);
+  stroke: var(--accent-gold-hover);
   stroke-width: 1.5px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+  filter: drop-shadow(0 0 4px var(--accent-gold));
+  animation: carGlowPulse 1.2s infinite alternate ease-in-out;
 }
 
 .journey-car-indicator path {
-  fill: var(--accent-gold);
+  fill: var(--accent-gold-hover);
+  filter: drop-shadow(0 0 2px rgba(197, 168, 128, 0.5));
+}
+
+@keyframes carGlowPulse {
+  0% {
+    filter: drop-shadow(0 0 2px rgba(197, 168, 128, 0.6));
+    stroke-width: 1.2px;
+  }
+  100% {
+    filter: drop-shadow(0 0 8px rgba(197, 168, 128, 0.9));
+    stroke-width: 2.2px;
+  }
 }
 
 @keyframes nodePulse {
