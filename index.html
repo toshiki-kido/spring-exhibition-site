@@ -549,6 +549,55 @@
     </div>
   </section>
 
+  <!-- Guestbook Section (Feedback Board) -->
+  <section id="guestbook" class="fade-in-section">
+    <div class="section-title-wrap">
+      <h2 class="section-title">Guestbook</h2>
+      <div class="section-subtitle">展示の感想・芳名帳</div>
+    </div>
+
+    <div class="guestbook-container">
+      <!-- Input Form -->
+      <form id="guestbook-form" class="guestbook-form" novalidate>
+        <h3>感想を書き残す</h3>
+        <p class="form-intro">展示や作品をご覧になった感想、応援メッセージなどをお気軽にお寄せください。</p>
+        
+        <div class="form-group">
+          <label for="visitor-name">お名前 (Name)</label>
+          <input type="text" id="visitor-name" name="name" placeholder="匿名希望、ニックネームでも可" required maxlength="25">
+        </div>
+        
+        <div class="form-group">
+          <label for="visitor-message">メッセージ (Message)</label>
+          <textarea id="visitor-message" name="message" rows="4" placeholder="作品の感想やメッセージをご自由にご入力ください" required maxlength="500"></textarea>
+        </div>
+        
+        <button type="submit" class="submit-btn">
+          <span>送信する (Post Message)</span>
+        </button>
+      </form>
+
+      <!-- Message Board Timeline -->
+      <div class="guestbook-board">
+        <div class="board-header">
+          <h3>みんなの感想 (Recent Feedback)</h3>
+          <button id="admin-mode-toggle" class="admin-mode-toggle" aria-label="管理者モード切り替え">
+            <svg class="admin-toggle-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <span id="admin-toggle-text">管理者ログイン</span>
+          </button>
+        </div>
+        <div id="guestbook-messages" class="guestbook-messages">
+          <div class="no-messages">
+            <p>まだ感想がありません。最初の感想を書き込んでみませんか？</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer -->
   <footer>
     <div class="footer-logo">風にほどける春</div>
@@ -698,6 +747,35 @@
             <span class="placard-value" id="exif-filename" style="font-family:var(--font-sans);">-</span>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Password Modal -->
+  <div id="admin-modal" class="admin-modal" aria-hidden="true">
+    <div class="admin-modal-overlay" id="admin-modal-overlay"></div>
+    <div class="admin-modal-content">
+      <button class="admin-modal-close" id="admin-modal-close" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div class="admin-modal-header">
+        <svg class="admin-lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+        <h3>管理者認証</h3>
+      </div>
+      <p class="admin-modal-desc">管理者モードに移行するには、パスワードを入力してください。</p>
+      <div class="admin-modal-input-wrap">
+        <input type="password" id="admin-password-input" placeholder="パスワードを入力">
+        <span class="admin-input-line"></span>
+      </div>
+      <div class="admin-modal-error" id="admin-modal-error">パスワードが違います</div>
+      <div class="admin-modal-actions">
+        <button id="admin-submit-btn" class="admin-modal-btn">ログイン</button>
       </div>
     </div>
   </div>

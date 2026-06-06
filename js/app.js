@@ -707,8 +707,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ESC key to close
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-      closeLightbox();
+    if (e.key === 'Escape') {
+      if (adminModal && adminModal.classList.contains('active')) {
+        closeAdminModal();
+      } else if (lightbox && lightbox.classList.contains('active')) {
+        closeLightbox();
+      }
     }
   });
 
@@ -797,6 +801,490 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   };
+
+  // --- Guestbook / Message Board Feature ---
+  const guestbookForm = document.getElementById('guestbook-form');
+  const guestbookMessages = document.getElementById('guestbook-messages');
+  const STORAGE_KEY = 'hus_guestbook_messages';
+  const MY_POSTS_KEY = 'hus_my_message_ids';
+  const ADMIN_PASS_HASH = 'aHVzcGhvdG8yMDI2'; // Base64 for 'husphoto2026'
+
+  // --- Web3Forms Email Notification Config ---
+  // 設定されたアクセスキーを使用して、新着コメントを自動転送します。
+  const WEB3FORMS_ACCESS_KEY = '0522a69a-4ed8-4b82-b842-a11f0a6f86ca';
+
+  // Helper to send email notification on new comment (Asynchronous Web3Forms POST)
+  const sendEmailNotification = async (name, message) => {
+    if (WEB3FORMS_ACCESS_KEY === 'YOUR_WEB3FORMS_ACCESS_KEY' || !WEB3FORMS_ACCESS_KEY.trim()) {
+      console.log("Email notification skipped: Web3Forms Access Key is not configured.");
+      return;
+    }
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
+          subject: '【風にほどける春】芳名帳に新しい感想が投稿されました',
+          from_name: '風にほどける春 特設サイト',
+          to_email: '3243005@stu.hus.ac.jp',
+          name: name,
+          message: message,
+          timestamp: new Date().toLocaleString('ja-JP')
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        console.log("Email notification sent successfully.");
+      } else {
+        console.warn("Web3Forms failed to send email:", result.message);
+      }
+    } catch (err) {
+      console.warn("Failed to send email notification:", err);
+    }
+  };
+
+  // Admin Mode state variables
+  const adminModeToggle = document.getElementById('admin-mode-toggle');
+  const adminToggleText = document.getElementById('admin-toggle-text');
+  let isAdminMode = sessionStorage.getItem('hus_is_admin') === 'true';
+
+  const updateAdminToggleUI = () => {
+    if (!adminModeToggle) return;
+    if (isAdminMode) {
+      adminModeToggle.classList.add('active');
+      if (adminToggleText) adminToggleText.textContent = '解除 (管理者)';
+    } else {
+      adminModeToggle.classList.remove('active');
+      if (adminToggleText) adminToggleText.textContent = '管理者ログイン';
+    }
+  };
+
+  // Helper to load my posted comment IDs
+  const getMyPostedIds = () => {
+    try {
+      const stored = localStorage.getItem(MY_POSTS_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.warn("Failed to load my posted IDs:", e);
+      return [];
+    }
+  };
+
+  // Helper to save a new posted comment ID
+  const addMyPostedId = (id) => {
+    try {
+      const ids = getMyPostedIds();
+      ids.push(id);
+      localStorage.setItem(MY_POSTS_KEY, JSON.stringify(ids));
+    } catch (e) {
+      console.warn("Failed to save my posted ID:", e);
+    }
+  };
+
+  // Load and display messages
+  const loadGuestbookMessages = () => {
+    let messages = [];
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        messages = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn("Failed to load guestbook messages:", e);
+    }
+
+    if (messages.length === 0) {
+      guestbookMessages.innerHTML = `
+        <div class="no-messages">
+          <p>まだ感想がありません。最初の感想を書き込んでみませんか？</p>
+        </div>
+      `;
+      return;
+    }
+
+    const myPostedIds = getMyPostedIds();
+
+    // Render cards
+    guestbookMessages.innerHTML = '';
+    messages.forEach(msg => {
+      const card = document.createElement('div');
+      card.className = 'guestbook-card';
+      card.setAttribute('data-id', msg.id);
+
+      // Get initial for avatar
+      const initial = (msg.name && msg.name.trim()) ? msg.name.trim().charAt(0).toUpperCase() : 'Guest';
+      
+      const isMyMessage = myPostedIds.includes(msg.id);
+
+      // Create Actions HTML (only show actions if it's my message or admin mode is active)
+      let actionsHTML = '';
+      if (isMyMessage || isAdminMode) {
+        actionsHTML = `<div class="card-actions">`;
+        if (isMyMessage) {
+          // Edit button (Pencil SVG)
+          actionsHTML += `
+            <button class="card-action-btn edit-btn" aria-label="この感想を編集">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+          `;
+        }
+        // Delete button (Trash SVG)
+        actionsHTML += `
+          <button class="card-action-btn delete-btn" aria-label="この感想を削除">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <line x1="10" y1="11" x2="10" y2="17" />
+              <line x1="14" y1="11" x2="14" y2="17" />
+            </svg>
+          </button>
+        `;
+        actionsHTML += `</div>`;
+      }
+
+      card.innerHTML = `
+        <div class="visitor-avatar">${initial}</div>
+        <div class="visitor-content">
+          <div class="visitor-meta">
+            <span class="visitor-meta-name">${escapeHTML(msg.name)}</span>
+            <span class="visitor-meta-date">${msg.date}</span>
+          </div>
+          <p class="visitor-msg-text">${escapeHTML(msg.message)}</p>
+        </div>
+        ${actionsHTML}
+      `;
+
+      // Attach actions events
+      if (isMyMessage) {
+        const editBtn = card.querySelector('.edit-btn');
+        if (editBtn) {
+          editBtn.addEventListener('click', () => {
+            enterEditMode(card, msg);
+          });
+        }
+      }
+
+      const deleteBtn = card.querySelector('.delete-btn');
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+          handleDeleteMessage(msg.id, isMyMessage);
+        });
+      }
+
+      guestbookMessages.appendChild(card);
+    });
+  };
+
+  // Inline comment editing logic
+  const enterEditMode = (card, msg) => {
+    // If already editing, ignore
+    if (card.classList.contains('editing')) return;
+
+    card.classList.add('editing');
+    const contentArea = card.querySelector('.visitor-content');
+    const msgTextElement = card.querySelector(`.visitor-msg-text`);
+    const originalText = msg.message;
+
+    // Temporarily hide actions panel
+    const actionsPanel = card.querySelector('.card-actions');
+    if (actionsPanel) actionsPanel.style.display = 'none';
+
+    // Replace message text with textarea and save/cancel buttons
+    const editContainer = document.createElement('div');
+    editContainer.className = 'inline-edit-container';
+    editContainer.innerHTML = `
+      <textarea class="edit-textarea" maxlength="500">${escapeHTML(originalText)}</textarea>
+      <div class="edit-actions">
+        <button class="edit-btn-cancel">キャンセル</button>
+        <button class="edit-btn-save">保存</button>
+      </div>
+    `;
+
+    msgTextElement.style.display = 'none';
+    contentArea.appendChild(editContainer);
+
+    const textarea = editContainer.querySelector('.edit-textarea');
+    textarea.focus();
+    // Move cursor to the end of text
+    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+
+    const cancelBtn = editContainer.querySelector('.edit-btn-cancel');
+    const saveBtn = editContainer.querySelector('.edit-btn-save');
+
+    const exitEditMode = () => {
+      editContainer.remove();
+      msgTextElement.style.display = '';
+      card.classList.remove('editing');
+      if (actionsPanel) actionsPanel.style.display = '';
+    };
+
+    cancelBtn.addEventListener('click', exitEditMode);
+    
+    saveBtn.addEventListener('click', () => {
+      const newText = textarea.value.trim();
+      if (!newText) {
+        alert("感想を入力してください。");
+        textarea.focus();
+        return;
+      }
+
+      if (newText === originalText) {
+        exitEditMode();
+        return;
+      }
+
+      // Update in localStorage
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          const messages = JSON.parse(stored);
+          const index = messages.findIndex(m => m.id === msg.id);
+          if (index !== -1) {
+            messages[index].message = newText;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+            loadGuestbookMessages(); // re-render board
+          }
+        }
+      } catch (e) {
+        console.error("Failed to update message:", e);
+        alert("メッセージの更新に失敗しました。");
+      }
+    });
+
+    // Handle ESC and Ctrl+Enter inside textarea
+    textarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        exitEditMode();
+      } else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        saveBtn.click();
+      }
+    });
+  };
+
+  // Handle deletion (asks confirmation if owner, direct delete if admin)
+  const handleDeleteMessage = (id, isOwner) => {
+    if (isOwner) {
+      if (!confirm("本当にこの感想を削除しますか？")) return;
+    } else if (!isAdminMode) {
+      // Just in case someone tries to trigger it maliciously
+      return;
+    }
+
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        let messages = JSON.parse(stored);
+        messages = messages.filter(msg => msg.id !== id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+        
+        // Also remove from my posted IDs list if it's there
+        let myPostedIds = getMyPostedIds();
+        myPostedIds = myPostedIds.filter(myId => myId !== id);
+        localStorage.setItem(MY_POSTS_KEY, JSON.stringify(myPostedIds));
+
+        loadGuestbookMessages();
+      }
+    } catch (e) {
+      console.error("Failed to delete message:", e);
+      alert("削除中にエラーが発生しました。");
+    }
+  };
+
+  // Helper to escape HTML tags to prevent XSS injection
+  const escapeHTML = (str) => {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  };
+
+  // Handle message post
+  if (guestbookForm) {
+    guestbookForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const nameInput = document.getElementById('visitor-name');
+      const messageInput = document.getElementById('visitor-message');
+
+      const name = nameInput.value.trim();
+      const message = messageInput.value.trim();
+
+      if (!name || !message) {
+        alert("お名前とメッセージを入力してください。");
+        return;
+      }
+
+      // Format current date: YYYY/MM/DD HH:MM
+      const now = new Date();
+      const pad = (n) => n.toString().padStart(2, '0');
+      const dateString = `${now.getFullYear()}/${pad(now.getMonth() + 1)}/${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+      const newMsg = {
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+        name: name,
+        message: message,
+        date: dateString
+      };
+
+      // Save to localStorage
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const messages = stored ? JSON.parse(stored) : [];
+        messages.unshift(newMsg); // Add to the top
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+        
+        // Add to my posted IDs
+        addMyPostedId(newMsg.id);
+
+        // Reset inputs and reload
+        nameInput.value = '';
+        messageInput.value = '';
+        
+        loadGuestbookMessages();
+
+        // Staggered smooth scroll to guestbook timeline
+        setTimeout(() => {
+          guestbookMessages.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 100);
+
+        // Trigger email notification asynchronously (Failure-safe)
+        sendEmailNotification(name, message);
+
+      } catch (err) {
+        console.error("Failed to save guestbook message:", err);
+        alert("感想の送信に失敗しました。");
+      }
+    });
+  }
+
+  // --- Admin Password Modal Logic ---
+  const adminModal = document.getElementById('admin-modal');
+  const adminOverlay = document.getElementById('admin-modal-overlay');
+  const adminClose = document.getElementById('admin-modal-close');
+  const adminPassInput = document.getElementById('admin-password-input');
+  const adminSubmitBtn = document.getElementById('admin-submit-btn');
+  const adminError = document.getElementById('admin-modal-error');
+
+  const openAdminModal = () => {
+    if (adminModal) {
+      adminModal.classList.add('active');
+      adminModal.setAttribute('aria-hidden', 'false');
+    }
+    if (adminPassInput) {
+      adminPassInput.value = '';
+    }
+    if (adminError) {
+      adminError.classList.remove('visible');
+    }
+    // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
+    
+    // Focus input after CSS transition starts
+    setTimeout(() => {
+      if (adminPassInput) adminPassInput.focus();
+    }, 150);
+  };
+
+  const closeAdminModal = () => {
+    if (adminModal) {
+      adminModal.classList.remove('active');
+      adminModal.setAttribute('aria-hidden', 'true');
+    }
+    if (adminPassInput) {
+      adminPassInput.value = '';
+    }
+    if (adminError) {
+      adminError.classList.remove('visible');
+    }
+    // Restore scrolling only if Lightbox isn't open
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox || !lightbox.classList.contains('active')) {
+      document.body.style.overflow = '';
+    }
+  };
+
+  const handleAdminVerify = () => {
+    if (!adminPassInput) return;
+    const inputPass = adminPassInput.value.trim();
+    if (!inputPass) {
+      showAdminError("パスワードを入力してください");
+      return;
+    }
+
+    const decodedPass = atob(ADMIN_PASS_HASH);
+
+    if (inputPass === decodedPass) {
+      try {
+        sessionStorage.setItem('hus_is_admin', 'true');
+        isAdminMode = true;
+        updateAdminToggleUI();
+        loadGuestbookMessages();
+        closeAdminModal();
+      } catch (e) {
+        console.error("Failed to enter admin mode:", e);
+        showAdminError("エラーが発生しました");
+      }
+    } else {
+      showAdminError("パスワードが正しくありません");
+    }
+  };
+
+  const showAdminError = (msg) => {
+    if (!adminError) return;
+    adminError.textContent = msg;
+    adminError.classList.add('visible');
+    
+    // Reset shaking animation
+    adminError.style.animation = 'none';
+    // Trigger reflow
+    void adminError.offsetWidth;
+    adminError.style.animation = '';
+    
+    if (adminPassInput) adminPassInput.focus();
+  };
+
+  // Admin Toggle Button Events
+  if (adminModeToggle) {
+    adminModeToggle.addEventListener('click', () => {
+      if (isAdminMode) {
+        // Logout admin
+        sessionStorage.removeItem('hus_is_admin');
+        isAdminMode = false;
+        updateAdminToggleUI();
+        loadGuestbookMessages();
+      } else {
+        openAdminModal();
+      }
+    });
+  }
+
+  if (adminClose) adminClose.addEventListener('click', closeAdminModal);
+  if (adminOverlay) adminOverlay.addEventListener('click', closeAdminModal);
+  if (adminSubmitBtn) adminSubmitBtn.addEventListener('click', handleAdminVerify);
+  if (adminPassInput) {
+    adminPassInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        handleAdminVerify();
+      } else if (e.key === 'Escape') {
+        closeAdminModal();
+      }
+    });
+  }
+
+  // Initial UI Setup
+  updateAdminToggleUI();
+  loadGuestbookMessages();
 
   // Run on page load and watch for hash changes
   window.addEventListener('load', handleHashRouting);
