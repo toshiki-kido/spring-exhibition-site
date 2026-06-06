@@ -746,12 +746,35 @@ document.addEventListener('DOMContentLoaded', () => {
     observer.observe(section);
   });
 
-  // --- Intro Overlay Fadeout ---
+  // --- Intro Overlay Click to Enter & Fullscreen ---
   const introOverlay = document.getElementById('intro-overlay');
   if (introOverlay) {
-    setTimeout(() => {
+    // Click to enter fullscreen and unlock audio context
+    introOverlay.addEventListener('click', () => {
+      // 1. Request fullscreen with cross-browser support
+      const docEl = document.documentElement;
+      const requestFS = docEl.requestFullscreen || 
+                        docEl.webkitRequestFullscreen || 
+                        docEl.mozRequestFullScreen || 
+                        docEl.msRequestFullscreen;
+      
+      if (requestFS) {
+        requestFS.call(docEl).catch(err => {
+          console.warn("Fullscreen request denied or not supported:", err);
+        });
+      }
+
+      // 2. Resume audio context immediately (vital for mobile browsers)
+      initAudio();
+
+      // 3. Trigger fade-out transition
       introOverlay.classList.add('fade-out');
-    }, 2200);
+      
+      // 4. Cleanup overlay element after transition finishes
+      setTimeout(() => {
+        introOverlay.style.display = 'none';
+      }, 1200);
+    });
   }
 
   // --- Custom Luxury Cursor ---
@@ -919,6 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await fetch(GAS_API_URL, {
         method: 'POST',
+        mode: 'no-cors', // Force no-cors to bypass redirect CORS blocks
         headers: {
           'Content-Type': 'text/plain' // Bypass CORS preflight precheck
         },
@@ -943,6 +967,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await fetch(GAS_API_URL, {
         method: 'POST',
+        mode: 'no-cors', // Force no-cors
         headers: {
           'Content-Type': 'text/plain'
         },
@@ -964,6 +989,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       await fetch(GAS_API_URL, {
         method: 'POST',
+        mode: 'no-cors', // Force no-cors
         headers: {
           'Content-Type': 'text/plain'
         },
