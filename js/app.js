@@ -109,7 +109,7 @@ const photoData = {
     desc: '広大な湧別の空の下、そよ風が吹き抜けた瞬間、重なり合う花びらがまるでドレスの裾をほどくように揺れ動いた。超望遠レンズの狭い視野の中で見つけた、二対のチューリップがひそやかに語り合うような一瞬。都会の喧騒を離れ、280kmを旅した果てに出会った、春の息吹そのものを捉えた作品。'
   },
   'gallery1': {
-    title: '微笑む木漏れ日',
+    title: '陽だまりのアンサンブル',
     filename: 'DSC05224.JPG',
     date: '2026/05/16 12:12',
     camera: 'SONY ILCE-7M4',
@@ -118,7 +118,7 @@ const photoData = {
     aperture: 'f/5.6',
     shutter: '1/1000 秒',
     iso: 'ISO 250',
-    desc: '朝露が消えかかる午前11時。木々の隙間から差し込む光が、一枚の花弁をステンドグラスのように透き通らせた。まるで、長い冬の眠りから覚めた花が、春の陽光に向かって優しく微笑みかけているような、温かな光の対話の物語。'
+    desc: '地表に近いローアングルから見上げるように捉えた、明るく色鮮やかなチューリップたち。超望遠レンズがもたらす圧縮効果を活かし、離れた場所に咲く花々を一つの絵画のように密に引き寄せ、温かなまとまり感を表現しました。陽だまりの中で寄り添い合い、互いの色彩を響かせ合う花たちの、華やかで優しい協奏曲（アンサンブル）を描き出しています。'
   },
   'gallery2': {
     title: '花海をゆく轍（わだち）',
@@ -543,6 +543,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const data = photoData[photoId];
     if (!data) return;
 
+    // Reset details sidebar scroll position immediately to prevent starting at bottom on mobile
+    const sidebar = lightbox.querySelector('.lightbox-sidebar');
+    if (sidebar) {
+      sidebar.scrollTop = 0;
+    }
+
     // Reset lightbox active state first to restart animations cleanly
     lightbox.classList.remove('active');
     lightbox.classList.remove('show-details');
@@ -647,6 +653,12 @@ document.addEventListener('DOMContentLoaded', () => {
     lightbox.classList.remove('hero-photo');
     stopPetals();
     document.body.style.overflow = ''; // Restore scrolling
+
+    // Reset details sidebar scroll position to top
+    const sidebar = lightbox.querySelector('.lightbox-sidebar');
+    if (sidebar) {
+      sidebar.scrollTop = 0;
+    }
     
     // Reset title card opacity immediately on close so it doesn't flash next time
     const titleCard = lightbox.querySelector('.lightbox-title-card');
