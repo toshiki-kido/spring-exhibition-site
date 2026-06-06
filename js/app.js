@@ -813,6 +813,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 設定されたアクセスキーを使用して、新着コメントを自動転送します。
   const WEB3FORMS_ACCESS_KEY = '0522a69a-4ed8-4b82-b842-a11f0a6f86ca';
 
+  // --- Google Apps Script (GAS) API Config ---
+  // 設定されたGASウェブアプリURLを使用して、コメントデータをGoogleスプレッドシートと同期します。
+  const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbz-OOwnh5Smq1qlfWCMW5kDMQHUpkJmsfr2tFOXZsp5LmGJuLRfAFSiK9lkyVh5GD2u/exec';
+
   // Helper to send email notification on new comment (Asynchronous Web3Forms POST)
   const sendEmailNotification = async (name, message) => {
     if (WEB3FORMS_ACCESS_KEY === 'YOUR_WEB3FORMS_ACCESS_KEY' || !WEB3FORMS_ACCESS_KEY.trim()) {
@@ -887,6 +891,94 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  // Helper to fetch/sync guestbook messages from GAS (Google Sheets Database)
+  const syncGuestbookMessages = async () => {
+    if (!GAS_API_URL || GAS_API_URL.trim() === 'YOUR_GAS_API_URL') {
+      return;
+    }
+
+    try {
+      const response = await fetch(GAS_API_URL);
+      const result = await response.json();
+      if (result.success && result.messages) {
+        // Reverse array so new messages are first
+        const messages = result.messages.reverse();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+        // Update display silently in background
+        renderGuestbookHTML(messages);
+      }
+    } catch (e) {
+      console.warn("Failed to sync guestbook messages with GAS:", e);
+    }
+  };
+
+  // Helper to post a new message to GAS asynchronously (CORS-safe simple request)
+  const postMessageToGAS = async (newMsg) => {
+    if (!GAS_API_URL || GAS_API_URL.trim() === 'YOUR_GAS_API_URL') return;
+
+    try {
+      await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain' // Bypass CORS preflight precheck
+        },
+        body: JSON.stringify({
+          action: 'add',
+          id: newMsg.id,
+          name: newMsg.name,
+          message: newMsg.message,
+          date: newMsg.date
+        })
+      });
+      syncGuestbookMessages(); // Trigger update to pull clean state
+    } catch (e) {
+      console.warn("Failed to post message to GAS:", e);
+    }
+  };
+
+  // Helper to delete a message from GAS asynchronously (CORS-safe simple request)
+  const deleteMessageFromGAS = async (id) => {
+    if (!GAS_API_URL || GAS_API_URL.trim() === 'YOUR_GAS_API_URL') return;
+
+    try {
+      await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain'
+        },
+        body: JSON.stringify({
+          action: 'delete',
+          id: id
+        })
+      });
+      syncGuestbookMessages();
+    } catch (e) {
+      console.warn("Failed to delete message from GAS:", e);
+    }
+  };
+
+  // Helper to edit/update a message in GAS (CORS-safe simple request)
+  const updateMessageInGAS = async (msgId, newText) => {
+    if (!GAS_API_URL || GAS_API_URL.trim() === 'YOUR_GAS_API_URL') return;
+
+    try {
+      await fetch(GAS_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain'
+        },
+        body: JSON.stringify({
+          action: 'edit',
+          id: msgId,
+          message: newText
+        })
+      });
+      syncGuestbookMessages();
+    } catch (e) {
+      console.warn("Failed to update message in GAS:", e);
+    }
+  };
+
   // Load and display messages
   const loadGuestbookMessages = () => {
     let messages = [];
@@ -899,6 +991,15 @@ document.addEventListener('DOMContentLoaded', () => {
       console.warn("Failed to load guestbook messages:", e);
     }
 
+    // Immediately render local cache for instant UI response
+    renderGuestbookHTML(messages);
+
+    // Fetch latest shared database in background
+    syncGuestbookMessages();
+  };
+
+  // Separate HTML renderer for reusable background updates
+  const renderGuestbookHTML = (messages) => {
     if (messages.length === 0) {
       guestbookMessages.innerHTML = `
         <div class="no-messages">
@@ -1042,7 +1143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Update in localStorage
+      // Update locally first for instant feedback
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
@@ -1051,9 +1152,14 @@ document.addEventListener('DOMContentLoaded', () => {
           if (index !== -1) {
             messages[index].message = newText;
             localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-            loadGuestbookMessages(); // re-render board
+            renderGuestbookHTML(messages);
           }
         }
+        
+        // Push update asynchronously to GAS
+        updateMessageInGAS(msg.id, newText);
+        exitEditMode();
+
       } catch (e) {
         console.error("Failed to update message:", e);
         alert("メッセージの更新に失敗しました。");
@@ -1075,24 +1181,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (isOwner) {
       if (!confirm("本当にこの感想を削除しますか？")) return;
     } else if (!isAdminMode) {
-      // Just in case someone tries to trigger it maliciously
       return;
     }
 
     try {
+      // 1. Delete locally first for instant UI response
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         let messages = JSON.parse(stored);
         messages = messages.filter(msg => msg.id !== id);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
         
-        // Also remove from my posted IDs list if it's there
         let myPostedIds = getMyPostedIds();
         myPostedIds = myPostedIds.filter(myId => myId !== id);
         localStorage.setItem(MY_POSTS_KEY, JSON.stringify(myPostedIds));
 
-        loadGuestbookMessages();
+        renderGuestbookHTML(messages);
       }
+
+      // 2. Sync delete request asynchronously with GAS database
+      deleteMessageFromGAS(id);
+
     } catch (e) {
       console.error("Failed to delete message:", e);
       alert("削除中にエラーが発生しました。");
@@ -1137,7 +1246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         date: dateString
       };
 
-      // Save to localStorage
+      // Save locally first for instant UI responsiveness
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         const messages = stored ? JSON.parse(stored) : [];
@@ -1147,18 +1256,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // Add to my posted IDs
         addMyPostedId(newMsg.id);
 
-        // Reset inputs and reload
+        // Reset inputs and reload UI
         nameInput.value = '';
         messageInput.value = '';
         
-        loadGuestbookMessages();
+        renderGuestbookHTML(messages);
 
         // Staggered smooth scroll to guestbook timeline
         setTimeout(() => {
           guestbookMessages.scrollTo({ top: 0, behavior: 'smooth' });
         }, 100);
 
-        // Trigger email notification asynchronously (Failure-safe)
+        // Trigger Google Sheets & Email notifications in background
+        postMessageToGAS(newMsg);
         sendEmailNotification(name, message);
 
       } catch (err) {

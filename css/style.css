@@ -29,6 +29,8 @@ html {
   scroll-behavior: smooth;
   font-size: 16px;
   background-color: var(--bg-color-dark);
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
@@ -37,6 +39,7 @@ body {
   background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 30%), #242528 0%, #121314 100%);
   min-height: 100vh;
   overflow-x: hidden;
+  width: 100%;
   line-height: 1.8;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -3252,6 +3255,9 @@ a, button, .gallery-card, .metal-print-wrap, .lightbox-close, .contrast-metal-wr
   }
   .card-actions {
     opacity: 0.7; /* Keep visible on touch screens */
+  }
+  .custom-cursor, .custom-cursor-dot {
+    display: none !important;
   }
 }
 
