@@ -1912,6 +1912,38 @@ footer {
     text-align: center;
     min-height: auto;
   }
+  .hero-info {
+    width: 100%;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .museum-placard {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 1.5rem;
+    box-sizing: border-box;
+  }
+  .placard-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .placard-row:last-child {
+    border-bottom: none;
+  }
+  .placard-label {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .placard-value {
+    text-align: left;
+    font-size: 0.82rem;
+    color: var(--accent-gold);
+    white-space: nowrap;
+  }
   .hero-visual {
     width: 100%;
     justify-content: center;
@@ -2167,22 +2199,6 @@ footer {
   }
   .info-value {
     font-size: 0.85rem;
-  }
-  .placard-row {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.72rem;
-  }
-  .placard-label {
-    white-space: nowrap;
-    font-size: 0.72rem;
-  }
-  .placard-value {
-    text-align: right;
-    white-space: nowrap;
-    font-size: 0.72rem;
   }
   /* Lightbox on small phones: maintain the flex-column split from 768px query */
   .lightbox-image-wrap img { max-height: 38vh; }
