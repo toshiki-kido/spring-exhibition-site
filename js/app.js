@@ -543,6 +543,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const data = photoData[photoId];
     if (!data) return;
 
+    // Trigger fullscreen on image click to ensure fully immersive viewer
+    const docEl = document.documentElement;
+    const requestFS = docEl.requestFullscreen || 
+                      docEl.webkitRequestFullscreen || 
+                      docEl.mozRequestFullScreen || 
+                      docEl.msRequestFullscreen;
+    if (requestFS && !document.fullscreenElement) {
+      requestFS.call(docEl).catch(err => {
+        console.warn("Fullscreen request on photo click denied:", err);
+      });
+    }
+
     // Reset details sidebar scroll position immediately to prevent starting at bottom on mobile
     const sidebar = lightbox.querySelector('.lightbox-sidebar');
     if (sidebar) {
