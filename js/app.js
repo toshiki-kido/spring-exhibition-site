@@ -308,6 +308,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const lightboxDesc = lightbox.querySelector('.lightbox-desc');
   const lightboxClose = lightbox.querySelector('.lightbox-close');
   
+  let currentActivePhotoId = null;
+  
   // DOM EXIF fields
   const exifDate = lightbox.querySelector('#exif-date');
   const exifCamera = lightbox.querySelector('#exif-camera');
@@ -539,9 +541,20 @@ document.addEventListener('DOMContentLoaded', () => {
     petals = [];
   };
 
-  const openLightbox = (photoId, imgSrc) => {
+  const openLightbox = (photoId, imgSrc, shouldPushState = true) => {
     const data = photoData[photoId];
     if (!data) return;
+
+    if (lightbox.classList.contains('active') && currentActivePhotoId === photoId) {
+      return; // Already open for this photo
+    }
+    currentActivePhotoId = photoId;
+
+    if (shouldPushState) {
+      history.pushState({ lightboxOpen: true, photoId: photoId, isPushed: true }, document.title, '#' + photoId);
+    } else {
+      history.replaceState({ lightboxOpen: true, photoId: photoId, isPushed: false }, document.title, '#' + photoId);
+    }
 
     // Trigger fullscreen on image click to ensure fully immersive viewer
     const docEl = document.documentElement;
@@ -658,13 +671,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1400);
   };
 
-  const closeLightbox = () => {
+  const performCloseLightbox = () => {
     lightbox.classList.remove('active');
     lightbox.classList.remove('show-details');
     lightbox.classList.remove('show-evf');
     lightbox.classList.remove('hero-photo');
     stopPetals();
     document.body.style.overflow = ''; // Restore scrolling
+    currentActivePhotoId = null;
 
     // Reset details sidebar scroll position to top
     const sidebar = lightbox.querySelector('.lightbox-sidebar');
@@ -682,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash) {
       const hash = window.location.hash.substring(1);
       if (photoData[hash]) {
-        history.replaceState(null, document.title, window.location.pathname + window.location.search);
+        history.replaceState({ lightboxOpen: false }, document.title, window.location.pathname + window.location.search);
       }
     }
 
@@ -690,6 +704,15 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       lightboxImg.src = '';
     }, 500);
+  };
+
+  const closeLightbox = () => {
+    if (history.state && history.state.lightboxOpen && history.state.isPushed) {
+      history.back();
+    } else {
+      history.replaceState({ lightboxOpen: false }, document.title, window.location.pathname + window.location.search);
+      performCloseLightbox();
+    }
   };
 
   // Attach click to hero image
@@ -842,9 +865,11 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (img) {
         // Wait for the splash screen / intro overlay to start fading out before opening
+        const isIntroActive = introOverlay && introOverlay.style.display !== 'none';
+        const delay = isIntroActive ? 1500 : 0;
         setTimeout(() => {
-          openLightbox(hash, img.src);
-        }, 1500);
+          openLightbox(hash, img.src, false); // Do not push state when routing from hash/URL directly
+        }, delay);
       }
     }
   };
@@ -1445,6 +1470,31 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial UI Setup
   updateAdminToggleUI();
   loadGuestbookMessages();
+
+  // Initialize history state on load
+  if (!history.state) {
+    history.replaceState({ lightboxOpen: false }, document.title, window.location.pathname + window.location.search);
+  }
+
+  // Handle browser back/forward buttons
+  window.addEventListener('popstate', (e) => {
+    if (e.state && e.state.lightboxOpen) {
+      const photoId = e.state.photoId;
+      let img = null;
+      if (photoId === 'hero') {
+        const heroWrap = document.querySelector('.hero-visual .metal-print-wrap');
+        if (heroWrap) img = heroWrap.querySelector('img');
+      } else {
+        const targetElement = document.querySelector(`[data-photo-id="${photoId}"]`);
+        if (targetElement) img = targetElement.querySelector('img');
+      }
+      if (img) {
+        openLightbox(photoId, img.src, false);
+      }
+    } else {
+      performCloseLightbox();
+    }
+  });
 
   // Run on page load and watch for hash changes
   window.addEventListener('load', handleHashRouting);
