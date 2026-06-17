@@ -1132,7 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="visitor-content">
           <div class="visitor-meta">
             <span class="visitor-meta-name">${escapeHTML(msg.name)}</span>
-            <span class="visitor-meta-date">${msg.date}</span>
+            <span class="visitor-meta-date">${formatDateString(msg.date)}</span>
           </div>
           <p class="visitor-msg-text">${escapeHTML(msg.message)}</p>
         </div>
@@ -1280,6 +1280,29 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (e) {
       console.error("Failed to delete message:", e);
       alert("削除中にエラーが発生しました。");
+    }
+  };
+
+  // Helper to format date string to "YYYY/MM/DD HH:MM" and remove long GMT string
+  const formatDateString = (dateStr) => {
+    if (!dateStr) return '';
+    
+    // If it's already in the brief format (e.g. YYYY/MM/DD HH:MM), just return it
+    if (/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}$/.test(dateStr)) {
+      return dateStr;
+    }
+    
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) {
+        // Fallback: strip GMT text if present
+        return dateStr.split(' GMT')[0];
+      }
+      const pad = (n) => n.toString().padStart(2, '0');
+      return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    } catch (e) {
+      // Fallback: strip GMT text if present
+      return dateStr.split(' GMT')[0];
     }
   };
 
@@ -1499,4 +1522,67 @@ document.addEventListener('DOMContentLoaded', () => {
   // Run on page load and watch for hash changes
   window.addEventListener('load', handleHashRouting);
   window.addEventListener('hashchange', handleHashRouting);
+
+  // --- Initialize Journey Map Scroll Position to Center on Mobile ---
+  const initMapScrollPosition = () => {
+    const mapWrapper = document.querySelector('.journey-map-wrapper');
+    if (mapWrapper) {
+      const scrollMax = mapWrapper.scrollWidth - mapWrapper.clientWidth;
+      if (scrollMax > 0) {
+        // 札幌（出発地）のSVG内相対位置は約18.3% (90px / 490px)
+        const sapporoPos = mapWrapper.scrollWidth * (90 / 490);
+        // 札幌が画面左端から約15%の位置に来るようにスクロール位置を設定
+        let scrollTarget = sapporoPos - (mapWrapper.clientWidth * 0.15);
+        // スクロール可能な範囲に丸める
+        scrollTarget = Math.max(0, Math.min(scrollMax, scrollTarget));
+        mapWrapper.scrollLeft = scrollTarget;
+      }
+    }
+  };
+  window.addEventListener('load', () => {
+    setTimeout(initMapScrollPosition, 100);
+  });
+  window.addEventListener('resize', initMapScrollPosition);
+
+  // --- Floating Guestbook Button Logic ---
+  const floatingBtn = document.getElementById('floating-guestbook-btn');
+  const guestbookSection = document.getElementById('guestbook');
+
+  if (floatingBtn && guestbookSection) {
+    // Scroll to guestbook smoothly when clicked
+    floatingBtn.addEventListener('click', () => {
+      guestbookSection.scrollIntoView({ behavior: 'smooth' });
+      
+      // Focus on the name input after scrolling completes
+      setTimeout(() => {
+        const nameInput = document.getElementById('visitor-name');
+        if (nameInput) nameInput.focus();
+      }, 800);
+    });
+
+    // Control visibility based on scroll position
+    const handleScroll = () => {
+      const scrollPos = window.scrollY || window.pageYOffset;
+      const windowHeight = window.innerHeight;
+      
+      // Get positions
+      const sectionTop = guestbookSection.offsetTop;
+      
+      // Condition 1: Hide near the very top of the page (e.g. within 350px)
+      // Condition 2: Hide when inside or below the guestbook section
+      const showThreshold = 350;
+      const isTooNearTop = scrollPos < showThreshold;
+      const isInsideSection = (scrollPos + windowHeight - 150) > sectionTop;
+      
+      if (!isTooNearTop && !isInsideSection) {
+        floatingBtn.classList.add('show');
+      } else {
+        floatingBtn.classList.remove('show');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    // Initial check
+    handleScroll();
+  }
 });

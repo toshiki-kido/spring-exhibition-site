@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>風にほどける春 - 北海道科学大学写真部 春展出展ポートフォリオ</title>
   <meta name="description" content="北海道科学大学写真部「春展」出展ポートフォリオ。かみゆうべつチューリップ公園にて撮影された、WALL DECOR「ミュージアム」作品「風にほどける春」を中心とした写真展示と湧別町の観光情報をご紹介します。">
-  <link rel="stylesheet" href="css/style.css?v=1.2">
+  <link rel="stylesheet" href="css/style.css?v=2.0">
 </head>
 <body>
 
@@ -469,6 +469,11 @@
         <p>Visual Journey from Sapporo to Yubetsu</p>
       </div>
       
+      <!-- Map Scroll Hint for mobile -->
+      <div class="map-scroll-hint-wrap">
+        <span class="map-scroll-hint">👈 左右にスクロールできます (Swipe to Scroll Map) 👉</span>
+      </div>
+      
       <div class="journey-map-wrapper">
         <svg class="journey-hokkaido-svg" viewBox="300 120 490 340" xmlns="http://www.w3.org/2000/svg">
           <!-- Hokkaido Coastline Outline (Detailed geographic boundary from Geolonia, transformed to fit) -->
@@ -560,7 +565,13 @@
     <div class="guestbook-container">
       <!-- Input Form -->
       <form id="guestbook-form" class="guestbook-form" novalidate>
-        <h3>感想を書き残す</h3>
+        <h3>
+          <svg class="form-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px; color: var(--accent-gold); vertical-align: middle; margin-right: 6px;">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+          <span>感想を書き残す</span>
+        </h3>
         <p class="form-intro">展示や作品をご覧になった感想、応援メッセージなどをお気軽にお寄せください。</p>
         
         <div class="form-group">
@@ -612,7 +623,17 @@
         <div class="footer-photographer-label">PHOTOGRAPHER</div>
         <div class="footer-photographer-name">木戸 俊希</div>
         <div class="footer-photographer-meta">北海道科学大学 理工学部 電気電子工学科 3年</div>
-        <a href="mailto:3243005@stu.hus.ac.jp" class="footer-photographer-mail">3243005@stu.hus.ac.jp</a>
+        <div class="footer-photographer-sns">
+          <a href="mailto:3243005@stu.hus.ac.jp" class="footer-photographer-mail">3243005@stu.hus.ac.jp</a>
+          <a href="https://www.instagram.com/toshiki_peyang?igsh=MW9jYTB3Z3FxaWtrbA==" target="_blank" rel="noopener noreferrer" class="footer-photographer-instagram">
+            <svg class="instagram-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; vertical-align: middle;">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+            </svg>
+            <span>@toshiki_peyang</span>
+          </a>
+        </div>
       </div>
     </div>
 
@@ -782,9 +803,18 @@
   </div>
 
   <!-- Custom Luxury Cursor -->
+  <!-- Floating Guestbook Shortcut Button -->
+  <button id="floating-guestbook-btn" class="floating-guestbook-btn" aria-label="感想掲示板へ移動">
+    <svg class="comment-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+    </svg>
+    <span class="btn-text">感想</span>
+  </button>
+
+  <!-- Custom Luxury Cursor -->
   <div class="custom-cursor"></div>
   <div class="custom-cursor-dot"></div>
 
-  <script src="js/app.js?v=1.2"></script>
+  <script src="js/app.js?v=2.0"></script>
 </body>
 </html>
